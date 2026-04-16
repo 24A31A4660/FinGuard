@@ -30,11 +30,10 @@ from financial_analyzer import (
 
 from config import settings
 from database import SessionLocal, init_db, TransactionAudit, UserProfile, User, Transaction
-from data_ingestion import ingest
-from feature_engine import extract_features, features_to_array
+
 import numpy as np
 from model import predict as ml_predict, get_model, get_model_info
-from user_profiles import get_profile, update_profile, seed_database
+
 
 # ─── Config ──────────────────────────────────────────────────────────────────────
 
@@ -629,7 +628,7 @@ def check_affordability():
 
 if __name__ == "__main__":
     logger.info("Initializing database & ML model...")
-    seed_database()
+    init_db()
     get_model()
     logger.info(f"Server starting on http://localhost:{settings.port}")
     app.run(host="0.0.0.0", port=settings.port, debug=settings.debug, threaded=True)
