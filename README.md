@@ -29,8 +29,8 @@ AI-powered financial intelligence platform that analyzes your spending patterns,
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/FinGuard-Financial-Decision-Engine.git
-cd FinGuard-Financial-Decision-Engine
+git clone https://github.com/24A31A4660/FinGuard.git
+cd FinGuard
 
 # Create virtual environment
 python -m venv .venv
@@ -56,7 +56,7 @@ Then open **http://localhost:5000** in your browser.
 ├── config.py               # Environment-based settings
 ├── train_model.py          # Model training script
 ├── models/
-│   ├── fraud_model.pkl     # Trained ML model
+│   ├── spending_model.pkl  # Trained ML model
 │   └── model_metadata.pkl  # Model metadata
 ├── static/
 │   ├── css/style.css       # UI styling
