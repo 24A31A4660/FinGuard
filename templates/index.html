@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinGuard — Smart Financial Decision Engine</title>
+    <meta name="description" content="AI-powered financial intelligence — spending analytics, behavioral insights, and smart financial decision engine.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+    <!-- ═══ AUTH MODAL ═══ -->
+    <div class="modal-overlay" id="authModal">
+        <div class="modal-card">
+            <button class="modal-close" id="modalClose">&times;</button>
+            <div class="modal-brand">
+                <div class="brand-icon-lg">₹</div>
+                <h2>Welcome to FinGuard</h2>
+                <p class="modal-sub">AI-Powered Financial Intelligence</p>
+            </div>
+            <div class="modal-tabs">
+                <button class="modal-tab active" data-auth="login">Login</button>
+                <button class="modal-tab" data-auth="signup">Sign Up</button>
+            </div>
+            <!-- Login Form -->
+            <form class="auth-form" id="loginForm">
+                <div class="auth-field">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" placeholder="you@example.com" required>
+                </div>
+                <div class="auth-field">
+                    <label>Password</label>
+                    <div class="pwd-wrapper">
+                        <input type="password" id="loginPassword" placeholder="••••••••" required>
+                        <button type="button" class="pwd-toggle" data-target="loginPassword">👁️</button>
+                    </div>
+                </div>
+                <button type="submit" class="auth-btn">Login</button>
+                <div class="auth-divider"><span>OR</span></div>
+                <div id="googleLoginBtn" class="google-auth-btn"></div>
+                <div class="auth-error" id="loginError"></div>
+            </form>
+            <!-- Signup Form -->
+            <form class="auth-form" id="signupForm" style="display:none">
+                <div class="auth-field">
+                    <label>Full Name</label>
+                    <input type="text" id="signupName" placeholder="John Doe" required>
+                </div>
+                <div class="auth-field">
+                    <label>Email</label>
+                    <input type="email" id="signupEmail" placeholder="you@example.com" required>
+                </div>
+                <div class="auth-field">
+                    <label>Password</label>
+                    <div class="pwd-wrapper">
+                        <input type="password" id="signupPassword" placeholder="Min 6 characters" minlength="6" required>
+                        <button type="button" class="pwd-toggle" data-target="signupPassword">👁️</button>
+                    </div>
+                    <div class="pwd-strength" id="pwdStrength">
+                        <div class="pwd-bar weak-bar"></div>
+                        <div class="pwd-bar med-bar"></div>
+                        <div class="pwd-bar strong-bar"></div>
+                        <span class="pwd-label" id="pwdLabel">Weak</span>
+                    </div>
+                </div>
+                <button type="submit" class="auth-btn">Create Account</button>
+                <div class="auth-divider"><span>OR</span></div>
+                <div id="googleSignupBtn" class="google-auth-btn"></div>
+                <div class="auth-error" id="signupError"></div>
+            </form>
+            <div class="demo-hint">
+                <span>🔑 Demo: </span>
+                <code>demo@finguard.com</code> / <code>demo123</code>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ NAVBAR ═══ -->
+    <nav class="topnav">
+        <div class="nav-brand">
+            <div class="brand-icon">₹</div>
+            <div>
+                <h1 class="brand-title">FinGuard</h1>
+                <span class="brand-sub">AI Financial Intelligence</span>
+            </div>
+        </div>
+        <div class="nav-center" id="navDemoBadge">
+            <div class="demo-badge-nav">
+                <span class="demo-pulse"></span>
+                <span>DEMO PREVIEW</span>
+            </div>
+        </div>
+        <div class="nav-right">
+            <div class="health-badge" id="navHealthBadge">
+                <span class="health-dot"></span>
+                <span>Score: <strong id="navScore">--</strong></span>
+            </div>
+            <!-- Demo mode buttons -->
+            <div id="navAuthBtns">
+                <button class="nav-btn nav-btn-outline" id="navLoginBtn">Login</button>
+                <button class="nav-btn nav-btn-primary" id="navGetStartedBtn">Get Started</button>
+            </div>
+            <!-- Authenticated mode -->
+            <div id="navUserInfo" style="display:none">
+                <div class="user-pill">
+                    <div class="user-avatar" id="userAvatar">D</div>
+                    <span class="user-name" id="userName">User</span>
+                    <button class="nav-btn nav-btn-sm" id="settingsBtn">Settings</button>
+                    <button class="nav-btn nav-btn-sm" id="logoutBtn">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- LANDING PAGE (DEMO MODE)                                       -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <div id="landingView">
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-bg-orbs">
+                <div class="orb orb-1"></div>
+                <div class="orb orb-2"></div>
+                <div class="orb orb-3"></div>
+            </div>
+            <div class="hero-content">
+                <div class="hero-badge">🛡️ AI-Powered Security</div>
+                <h1 class="hero-title">
+                    Smart Financial<br>
+                    <span class="gradient-text">Decision Engine & Intelligence</span>
+                </h1>
+                <p class="hero-desc">
+                    Track your spending, instantly analyze the budget impact of purchases, get personalized affordability checks, and achieve your financial goals.
+                </p>
+                <div class="hero-cta">
+                    <button class="cta-btn cta-primary" id="heroGetStarted">Get Started Free</button>
+                    <button class="cta-btn cta-outline" id="heroLogin">Login →</button>
+                </div>
+                <div class="hero-stats">
+                    <div class="hero-stat"><span class="hs-val">99.2%</span><span class="hs-label">Detection Rate</span></div>
+                    <div class="hero-stat-sep"></div>
+                    <div class="hero-stat"><span class="hs-val">&lt;50ms</span><span class="hs-label">Inference Time</span></div>
+                    <div class="hero-stat-sep"></div>
+                    <div class="hero-stat"><span class="hs-val">9-Layer</span><span class="hs-label">Feature Engine</span></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Demo Dashboard Preview -->
+        <section class="demo-section">
+            <div class="demo-header">
+                <h2 class="demo-title">📊 Live Demo Preview</h2>
+                <div class="demo-label">
+                    <span class="demo-dot"></span>
+                    Sample Data — Not Real
+                </div>
+            </div>
+
+            <!-- Demo Stats -->
+            <div class="stats-grid demo-blur">
+                <div class="stat-card">
+                    <span class="stat-emoji">💰</span>
+                    <span class="stat-label">Total Spent</span>
+                    <span class="stat-value" id="demoTotalSpent">₹32,450</span>
+                </div>
+                <div class="stat-card stat-score-card">
+                    <span class="stat-emoji">📊</span>
+                    <span class="stat-label">Health Score</span>
+                    <span class="stat-value" id="demoHealthScore">72/100</span>
+                    <div class="mini-bar"><div class="mini-bar-fill" style="width:72%"></div></div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-emoji">⚡</span>
+                    <span class="stat-label">Risk Level</span>
+                    <span class="stat-value" id="demoRiskLevel" style="color:#f59e0b">MEDIUM</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-emoji">🧠</span>
+                    <span class="stat-label">Personality</span>
+                    <span class="stat-value" id="demoPersonality">Balanced</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-emoji">🔮</span>
+                    <span class="stat-label">Predicted Monthly</span>
+                    <span class="stat-value" id="demoPredicted">₹48,200</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-emoji">📈</span>
+                    <span class="stat-label">7-Day Trend</span>
+                    <span class="stat-value" id="demoTrend" style="color:#ef4444">Rising (+18%)</span>
+                </div>
+            </div>
+
+            <!-- Demo Charts -->
+            <div class="charts-row demo-blur">
+                <div class="card">
+                    <div class="card-head">
+                        <h2>Category Distribution</h2>
+                        <span class="demo-tag">DEMO</span>
+                    </div>
+                    <div class="chart-box chart-pie"><canvas id="demoPieChart"></canvas></div>
+                </div>
+                <div class="card card-grow">
+                    <div class="card-head">
+                        <h2>Daily Spending Trend</h2>
+                        <span class="demo-tag">DEMO</span>
+                    </div>
+                    <div class="chart-box chart-line"><canvas id="demoLineChart"></canvas></div>
+                </div>
+            </div>
+
+            <!-- Demo Insights -->
+            <div class="card demo-blur">
+                <div class="card-head">
+                    <h2>🔍 AI Insights Preview</h2>
+                    <span class="demo-tag">DEMO</span>
+                </div>
+                <div class="insights-grid" style="padding:20px">
+                    <div class="insight-block">
+                        <h3 class="ib-title ib-red">🔴 Key Issues</h3>
+                        <ul id="demoIssues"></ul>
+                    </div>
+                    <div class="insight-block">
+                        <h3 class="ib-title ib-purple">📈 Behavior Patterns</h3>
+                        <ul id="demoPatterns"></ul>
+                    </div>
+                    <div class="insight-block">
+                        <h3 class="ib-title ib-yellow">⚠️ Risk Factors</h3>
+                        <ul id="demoRisks"></ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Demo Smart Financial Decision -->
+            <div class="card card-accent-cyan demo-blur">
+                <div class="card-head">
+                    <h2>🧠 Smart Financial Decision Preview</h2>
+                    <span class="badge">ML POWERED</span>
+                    <span class="demo-tag" style="margin-left:8px">DEMO</span>
+                </div>
+                <div class="demo-fraud-showcase">
+                    <div class="fraud-demo-card allow">
+                        <div class="fdc-icon">✅</div>
+                        <div class="fdc-label">SAFE: ₹500 Transport</div>
+                        <div class="fdc-detail">Risk: LOW | This expense aligns with your normal spending pattern.</div>
+                    </div>
+                    <div class="fraud-demo-card otp">
+                        <div class="fdc-icon">⚡</div>
+                        <div class="fdc-label">CAUTION: ₹3000 Entertainment</div>
+                        <div class="fdc-detail">Risk: MEDIUM | You can afford this, but it may delay your savings goal.</div>
+                    </div>
+                    <div class="fraud-demo-card block">
+                        <div class="fdc-icon">⚠️</div>
+                        <div class="fdc-label">HIGH RISK: ₹15000 Shopping</div>
+                        <div class="fdc-detail">Risk: HIGH | This significantly deviates from your safe spending patterns.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CTA Banner -->
+            <div class="cta-banner">
+                <div class="cta-banner-content">
+                    <h3>Ready to secure your finances?</h3>
+                    <p>Create your free account and see your real financial intelligence dashboard.</p>
+                </div>
+                <button class="cta-btn cta-primary" id="bannerGetStarted">Get Started Free →</button>
+            </div>
+        </section>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- AUTHENTICATED DASHBOARD                                        -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <div id="dashboardView" style="display:none">
+        <main class="page">
+
+            <!-- Quick Add Bar -->
+            <section class="section" id="sectionAdd">
+                <form class="quick-add" id="txnForm">
+                    <div class="quick-add-fields">
+                        <div class="qa-field">
+                            <label for="txnDate">Date</label>
+                            <input type="date" id="txnDate" required>
+                        </div>
+                        <div class="qa-field">
+                            <label for="txnAmount">Amount (₹)</label>
+                            <input type="number" id="txnAmount" placeholder="500" min="1" required>
+                        </div>
+                        <div class="qa-field">
+                            <label for="txnCategory">Category</label>
+                            <select id="txnCategory" required>
+                                <option value="">Select...</option>
+                                <option value="Food">🍕 Food</option>
+                                <option value="Transport">🚗 Transport</option>
+                                <option value="Shopping">🛍️ Shopping</option>
+                                <option value="Bills">📄 Bills</option>
+                                <option value="Entertainment">🎬 Entertainment</option>
+                                <option value="Others">📦 Others</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="qa-btn" id="submitBtn">Add & Analyze</button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Alert Banner -->
+            <div class="alert-banner" id="alertBanner" style="display:none">
+                <span class="alert-icon">⚠️</span>
+                <span id="alertText"></span>
+            </div>
+
+            <!-- Overview Cards -->
+            <section class="section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-emoji">💰</span>
+                        <span class="stat-label">Total Spent</span>
+                        <span class="stat-value" id="totalSpent">₹0</span>
+                    </div>
+                    <div class="stat-card stat-score-card">
+                        <span class="stat-emoji">📊</span>
+                        <span class="stat-label">Health Score</span>
+                        <span class="stat-value" id="healthScore">0</span>
+                        <div class="mini-bar"><div class="mini-bar-fill" id="scoreBar"></div></div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-emoji">⚡</span>
+                        <span class="stat-label">Risk Level</span>
+                        <span class="stat-value" id="riskLevel">--</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-emoji">🧠</span>
+                        <span class="stat-label">Personality</span>
+                        <span class="stat-value" id="personalityType">--</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-emoji">🔮</span>
+                        <span class="stat-label">Predicted Monthly</span>
+                        <span class="stat-value" id="predictedMonthly">₹0</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-emoji">📈</span>
+                        <span class="stat-label">7-Day Trend</span>
+                        <span class="stat-value" id="trendDirection">--</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Charts -->
+            <section class="section">
+                <div class="charts-row">
+                    <div class="card">
+                        <div class="card-head"><h2>Category Distribution</h2></div>
+                        <div class="chart-box chart-pie"><canvas id="pieChart"></canvas></div>
+                    </div>
+                    <div class="card card-grow">
+                        <div class="card-head"><h2>Daily Spending Trend</h2></div>
+                        <div class="chart-box chart-line"><canvas id="lineChart"></canvas></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- AI Modules (Tabbed) -->
+            <section class="section">
+                <div class="card">
+                    <div class="tabs-header">
+                        <button class="tab active" data-tab="insights">🔍 Insights</button>
+                        <button class="tab" data-tab="recommendations">💡 Recommendations</button>
+                        <button class="tab" data-tab="trend">📊 Trend Details</button>
+                        <button class="tab" data-tab="whatif">🔁 What-If</button>
+                    </div>
+                    <div class="tab-content active" id="tab-insights">
+                        <div class="insights-grid">
+                            <div class="insight-block">
+                                <h3 class="ib-title ib-red">🔴 Key Issues</h3>
+                                <ul id="keyIssues"><li class="placeholder">Add transactions to see insights</li></ul>
+                            </div>
+                            <div class="insight-block">
+                                <h3 class="ib-title ib-purple">📈 Behavior Patterns</h3>
+                                <ul id="behaviorPatterns"><li class="placeholder">Add transactions to see patterns</li></ul>
+                            </div>
+                            <div class="insight-block">
+                                <h3 class="ib-title ib-yellow">⚠️ Risk Factors</h3>
+                                <ul id="riskFactors"><li class="placeholder">Add transactions to see risks</li></ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-content" id="tab-recommendations">
+                        <div id="recommendations" class="recs-grid">
+                            <div class="placeholder-msg">Add transactions to get personalized recommendations.</div>
+                        </div>
+                    </div>
+                    <div class="tab-content" id="tab-trend">
+                        <div class="detail-grid">
+                            <div class="detail-item"><span class="dl">Last 7 Days</span><span class="dv" id="trendLast7">--</span></div>
+                            <div class="detail-item"><span class="dl">Previous 7 Days</span><span class="dv" id="trendPrev7">--</span></div>
+                            <div class="detail-item"><span class="dl">Change</span><span class="dv" id="trendChange">--</span></div>
+                            <div class="detail-item"><span class="dl">Weekend Spike</span><span class="dv" id="trendWeekend">--</span></div>
+                            <div class="detail-item"><span class="dl">Avg Weekday</span><span class="dv" id="trendAvgWeekday">--</span></div>
+                            <div class="detail-item"><span class="dl">Avg Weekend</span><span class="dv" id="trendAvgWeekend">--</span></div>
+                        </div>
+                        <div class="spike-section" id="spikeSection" style="display:none">
+                            <h4>Irregular Spending Spikes</h4>
+                            <div id="spikeList"></div>
+                        </div>
+                    </div>
+                    <div class="tab-content" id="tab-whatif">
+                        <p class="whatif-desc">Simulate how changing your spending in a category affects your financial health score.</p>
+                        <div class="whatif-form">
+                            <div class="qa-field">
+                                <label for="wifCategory">Category</label>
+                                <select id="wifCategory"><option value="Food">Food</option><option value="Shopping">Shopping</option><option value="Entertainment">Entertainment</option><option value="Transport">Transport</option><option value="Bills">Bills</option></select>
+                            </div>
+                            <div class="qa-field">
+                                <label for="wifPercent">Adjustment %</label>
+                                <input type="number" id="wifPercent" value="-20" step="5">
+                            </div>
+                            <button class="qa-btn qa-btn-outline" id="simBtn">Run Simulation</button>
+                        </div>
+                        <div id="simResult" class="sim-result" style="display:none"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Payment History -->
+            <section class="section">
+                <div class="card">
+                    <div class="card-head">
+                        <h2>Payment History</h2>
+                        <span class="meta" id="txnCount">0 payments</span>
+                    </div>
+                    <div class="payment-list" id="paymentList">
+                        <div class="placeholder-msg">No transactions yet. Start by adding your first expense.</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Smart Financial Decision Engine -->
+            <section class="section">
+                <div class="card card-accent-cyan">
+                    <div class="card-head">
+                        <h2>🧠 Smart Financial Decision Engine</h2>
+                        <span class="badge">ML POWERED</span>
+                    </div>
+                    <form class="fraud-form" id="decisionForm">
+                        <div class="fraud-fields" style="grid-template-columns: 1fr 1fr">
+                            <div class="qa-field"><label>Simulate Amount (₹)</label><input type="number" id="decAmount" value="5000" min="1" required></div>
+                            <div class="qa-field"><label>Category</label>
+                                <select id="decCategory" required>
+                                    <option value="Food">🍕 Food</option>
+                                    <option value="Transport">🚗 Transport</option>
+                                    <option value="Shopping" selected>🛍️ Shopping</option>
+                                    <option value="Bills">📄 Bills</option>
+                                    <option value="Entertainment">🎬 Entertainment</option>
+                                    <option value="Others">📦 Others</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="qa-btn qa-btn-cyan" id="decButton">Check Affordability</button>
+                    </form>
+                    <div id="decisionResult" class="decision-result" style="display:none; padding: 20px; margin-top: 15px; border-radius: 8px; background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(255, 255, 255, 0.1);">
+                        <!-- Results dynamically injected here -->
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- SETTINGS VIEW                                                  -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <div id="settingsView" style="display:none">
+        <main class="page">
+            <div class="settings-header">
+                <h2>User Settings</h2>
+                <button class="nav-btn nav-btn-sm" id="backToDashBtn">← Back to Dashboard</button>
+            </div>
+            <section class="section">
+                <!-- Salary Block -->
+                <div class="card" style="margin-bottom: 20px;">
+                    <div class="card-head">
+                        <h2>Financial Configuration</h2>
+                    </div>
+                    <div style="padding: 0 24px 24px;">
+                        <form class="auth-form" id="salaryForm">
+                            <div class="alert-banner" id="salaryAlertBanner" style="display:none; margin-bottom: 15px;">
+                                <span class="alert-icon">⚠️</span>
+                                <span>Monthly income is required to calculate your health score and insights.</span>
+                            </div>
+                            <div class="auth-field">
+                                <label for="monthlySalary">Monthly Income (₹)</label>
+                                <input type="number" id="monthlySalary" placeholder="e.g. 50000" min="1" required>
+                            </div>
+                            <button type="submit" class="qa-btn qa-btn-cyan" id="updateSalaryBtn">Update Income</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Profile Block -->
+                <div class="card" style="margin-bottom: 20px;">
+                    <div class="card-head">
+                        <h2>Profile Details</h2>
+                    </div>
+                    <div style="padding: 0 24px 24px;">
+                        <form class="auth-form" id="profileForm">
+                            <div class="auth-field">
+                                <label>Full Name</label>
+                                <input type="text" id="profileName" required>
+                            </div>
+                            <button type="submit" class="qa-btn">Update Profile</button>
+                            <div class="auth-error" id="profileMessage" style="color: #22c55e;"></div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Password Block -->
+                <div class="card">
+                    <div class="card-head">
+                        <h2>Security Settings</h2>
+                    </div>
+                    <div style="padding: 0 24px 24px;">
+                        <form class="auth-form" id="passwordForm">
+                            <div class="auth-field">
+                                <label>Current Password</label>
+                                <div class="pwd-wrapper">
+                                    <input type="password" id="oldPassword" placeholder="••••••••" required>
+                                    <button type="button" class="pwd-toggle" data-target="oldPassword">👁️</button>
+                                </div>
+                            </div>
+                            <div class="auth-field">
+                                <label>New Password</label>
+                                <div class="pwd-wrapper">
+                                    <input type="password" id="newPassword" placeholder="Min 6 characters" minlength="6" required>
+                                    <button type="button" class="pwd-toggle" data-target="newPassword">👁️</button>
+                                </div>
+                            </div>
+                            <button type="submit" class="qa-btn" style="background: #ef4444;">Change Password</button>
+                            <div class="auth-error" id="passwordError"></div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <footer class="footer">
+        FinGuard — AI Financial Intelligence · Smart Financial Decisions · Behavioral Analytics
+    </footer>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
