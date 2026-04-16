@@ -1,6 +1,10 @@
 import os
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+# Detect Vercel serverless (read-only filesystem — use /tmp for DB)
+_IS_VERCEL = os.environ.get("VERCEL", "") == "1"
+_DEFAULT_DB = "sqlite:////tmp/ai_finance.db" if _IS_VERCEL else "sqlite:///./ai_finance.db"
+
 class Settings(BaseSettings):
     """
     Production-ready settings management using Environmental Variables.
@@ -9,7 +13,7 @@ class Settings(BaseSettings):
     
     # Flask Settings
     flask_env: str = "development"
-    debug: bool = True
+    debug: bool = not _IS_VERCEL
     port: int = 5000
     secret_key: str = "dev-key-default-replace-me-in-prod"
     jwt_secret_key: str = "jwt-secret-key-replace-me"
@@ -17,7 +21,7 @@ class Settings(BaseSettings):
     google_client_id: str = "" # Optional, set from ENV
     
     # Database
-    database_url: str = "sqlite:///./ai_finance.db"
+    database_url: str = _DEFAULT_DB
     
     # ML Engine Thresholds
     contamination_rate: float = 0.05
