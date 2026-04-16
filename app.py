@@ -37,23 +37,18 @@ from model import predict as ml_predict, get_model, get_model_info
 
 # ─── Config ──────────────────────────────────────────────────────────────────────
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-log_handlers = [logging.StreamHandler()]
-try:
-    log_handlers.append(logging.FileHandler(os.path.join(BASE_DIR, "app.log"), encoding="utf-8"))
-except (PermissionError, OSError):
-    pass  # Skip file logging in serverless environments
-
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(name)-28s | %(levelname)-7s | %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
-    handlers=log_handlers,
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler("app.log", encoding="utf-8"),
+    ],
 )
 logger = logging.getLogger("app")
 
-app = Flask(__name__, template_folder=os.path.join(BASE_DIR, "templates"), static_folder=os.path.join(BASE_DIR, "static"))
+app = Flask(__name__, template_folder="templates", static_folder="static")
 CORS(app)
 app.config["SECRET_KEY"] = settings.secret_key
 
@@ -626,17 +621,14 @@ def check_affordability():
 
 
 # ═══════════════════════════════════════════════════════════════════════════════════
-# INITIALIZE (runs on import for Vercel, and on __main__ for local)
+# START
 # ═══════════════════════════════════════════════════════════════════════════════════
 
-try:
+if __name__ == "__main__":
+    logger.info("Initializing database & ML model...")
     init_db()
     get_model()
-    logger.info("App initialized successfully")
-except Exception as e:
-    logger.error(f"Initialization error: {e}")
-
-if __name__ == "__main__":
     logger.info(f"Server starting on http://localhost:{settings.port}")
     app.run(host="0.0.0.0", port=settings.port, debug=settings.debug, threaded=True)
+
 

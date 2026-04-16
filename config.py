@@ -1,12 +1,6 @@
 import os
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-# Detect cloud environments
-_IS_VERCEL = os.environ.get("VERCEL", "") == "1"
-_IS_RENDER = os.environ.get("RENDER", "") == "true"
-_IS_CLOUD = _IS_VERCEL or _IS_RENDER
-_DEFAULT_DB = "sqlite:////tmp/ai_finance.db" if _IS_VERCEL else "sqlite:///./ai_finance.db"
-
 class Settings(BaseSettings):
     """
     Production-ready settings management using Environmental Variables.
@@ -14,16 +8,16 @@ class Settings(BaseSettings):
     """
     
     # Flask Settings
-    flask_env: str = "production" if _IS_CLOUD else "development"
-    debug: bool = not _IS_CLOUD
-    port: int = int(os.environ.get("PORT", 5000))
+    flask_env: str = "development"
+    debug: bool = True
+    port: int = 5000
     secret_key: str = "dev-key-default-replace-me-in-prod"
     jwt_secret_key: str = "jwt-secret-key-replace-me"
     jwt_access_token_expires: int = 86400  # 1 day in seconds
     google_client_id: str = "" # Optional, set from ENV
     
     # Database
-    database_url: str = _DEFAULT_DB
+    database_url: str = "sqlite:///./ai_finance.db"
     
     # ML Engine Thresholds
     contamination_rate: float = 0.05
